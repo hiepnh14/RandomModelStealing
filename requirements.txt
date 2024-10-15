@@ -4,3 +4,8 @@ numpy
 pandas
 matplotlib
 scikit-learn
+tqdm
+fastapi
+uvicorn
+requests
+json

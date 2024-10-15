@@ -3,6 +3,7 @@ import torchvision
 import torchvision.transforms as transforms
 import torch.nn as nn
 import random
+from resnet import ResNet10, ResNet20
 # Load the trained model (make sure you have the model file saved)
 resnet18 = torchvision.models.resnet18()  # Your model architecture (e.g., ResNet18, VGG16, etc.)
 resnet18.fc = nn.Linear(resnet18.fc.in_features, 10)
@@ -11,6 +12,7 @@ resnet18.eval()  # Set the model to evaluation mode
 
 
 resnet34 = torchvision.models.resnet34()  # Your model architecture (e.g., ResNet18, VGG16, etc.)
+
 resnet34.fc = nn.Linear(resnet34.fc.in_features, 10)
 resnet34.load_state_dict(torch.load('resnet34.pth'))
 resnet34.eval()  # Set the model to evaluation mode
@@ -34,6 +36,8 @@ elif num == 1:
 # Make predictions on the test dataset
 with torch.no_grad():
     for data, target in test_loader:
+        
+        data = torch.randn(1, 3, 32, 32)
         output = model(data)
         _, predicted = torch.max(output.data, 1)
         print("Predicted class:", predicted.item())
