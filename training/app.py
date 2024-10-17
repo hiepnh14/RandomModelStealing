@@ -15,7 +15,7 @@ app = FastAPI(title="PyTorch Model Inference API")
 # Load the model at startup
 resnet18 = torchvision.models.resnet18()  # Your model architecture (e.g., ResNet18, VGG16, etc.)
 resnet18.fc = nn.Linear(resnet18.fc.in_features, 10)
-resnet18.load_state_dict(torch.load('resnet18.pth'))
+resnet18.load_state_dict(torch.load('resnet18x.pth'))
 resnet18.eval()  # Set the model to evaluation mode
 
 
@@ -42,15 +42,15 @@ elif num == 1:
     model = resnet34
 
 # Make predictions on the test dataset as an example
-with torch.no_grad():
-    for data, target in test_loader:
+# with torch.no_grad():
+#     for data, target in test_loader:
         
-        data = torch.randn(1, 3, 32, 32)
-        output = model(data)
-        _, predicted = torch.max(output.data, 1)
-        print("Predicted class:", predicted.item())
-        print(num)
-        break
+#         data = torch.randn(1, 3, 32, 32)
+#         output = model(data)
+#         _, predicted = torch.max(output.data, 1)
+#         print("Predicted class:", predicted.item())
+#         print(num)
+#         break
 
 # Define the input data structure
 class InputData(BaseModel):
