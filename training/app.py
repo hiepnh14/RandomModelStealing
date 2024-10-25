@@ -9,22 +9,26 @@ import torch.nn as nn
 import numpy as np
 import random
 import warnings
+from resnet import ResNet18, ResNet20
 warnings.filterwarnings("ignore")
 app = FastAPI(title="PyTorch Model Inference API")
 
 # Load the model at startup
-resnet18 = torchvision.models.resnet18()  # Your model architecture (e.g., ResNet18, VGG16, etc.)
-resnet18.fc = nn.Linear(resnet18.fc.in_features, 10)
-resnet18.load_state_dict(torch.load('resnet18x.pth'))
+# resnet18 = torchvision.models.resnet18()  # Your model architecture (e.g., ResNet18, VGG16, etc.)
+# resnet18.fc = nn.Linear(resnet18.fc.in_features, 10)
+resnet18 = ResNet18()
+resnet18.load_state_dict(torch.load('resnet18.pth'))
 resnet18.eval()  # Set the model to evaluation mode
 
 
-resnet34 = torchvision.models.resnet34()  # Your model architecture (e.g., ResNet18, VGG16, etc.)
+# resnet34 = torchvision.models.resnet34()  # Your model architecture (e.g., ResNet18, VGG16, etc.)
 
-resnet34.fc = nn.Linear(resnet34.fc.in_features, 10)
-resnet34.load_state_dict(torch.load('resnet34.pth'))
-resnet34.eval()  # Set the model to evaluation mode
+# resnet34.fc = nn.Linear(resnet34.fc.in_features, 10)
+resnet20 = ResNet20()
+resnet20.load_state_dict(torch.load('resnet20.pth'))
+resnet20.eval()  # Set the model to evaluation mode
 # Define the transformations for the input data
+
 transform = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
@@ -39,7 +43,7 @@ num = random.choice([0, 1])
 if num == 0:
     model = resnet18
 elif num == 1:
-    model = resnet34
+    model = resnet20
 
 # Make predictions on the test dataset as an example
 # with torch.no_grad():
@@ -68,7 +72,7 @@ def predict(input: InputData):
         if num == 0:
             model = resnet18
         elif num == 1:
-            model = resnet34
+            model = resnet20
         # Convert input data to a tensor
         input_tensor = torch.tensor(input.data, dtype=torch.float32)
         input_tensor = input_tensor.view(1, 3, 32, 32) 
