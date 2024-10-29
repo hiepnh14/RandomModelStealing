@@ -9,10 +9,18 @@ import torch.nn as nn
 import numpy as np
 import random
 import warnings
+from efficientNet import EfficientNetV2, efficientnet_v2_configs
 from resnet import ResNet18, ResNet20
 warnings.filterwarnings("ignore")
 app = FastAPI(title="PyTorch Model Inference API")
+device = "cpu"
+# Function to load the best model checkpoint
+def load_model(model, path, device=device):
+    model.load_state_dict(torch.load(path, map_location=device))
+    model = model.to(device)
+    return model
 
+# device = "cpu"
 # Load the model at startup
 # resnet18 = torchvision.models.resnet18()  # Your model architecture (e.g., ResNet18, VGG16, etc.)
 # resnet18.fc = nn.Linear(resnet18.fc.in_features, 10)
@@ -28,6 +36,11 @@ resnet20 = ResNet20()
 resnet20.load_state_dict(torch.load('resnet20.pth'))
 resnet20.eval()  # Set the model to evaluation mode
 # Define the transformations for the input data
+
+model_variant = 'efficientnet_v2_s'  # Choose between 'efficientnet_v2_s', 'efficientnet_v2_m', 'efficientnet_v2_l'
+efficientv2s = EfficientNetV2(num_classes=10, architecture_config=efficientnet_v2_configs[model_variant]).to(device)
+efficientv2s = load_model(efficientv2s, "efficientv2s.pth", device=device)
+
 
 transform = transforms.Compose([
     transforms.ToTensor(),
@@ -78,6 +91,8 @@ def predict(input: InputData):
             model = resnet18
         elif num == 1:
             model = resnet20
+        # else:
+        # model = efficientv2s
         # Convert input data to a tensor
         input_tensor = torch.tensor(input.data, dtype=torch.float32)
         input_tensor = input_tensor.view(1, 3, 32, 32)
