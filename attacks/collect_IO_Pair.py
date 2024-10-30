@@ -8,12 +8,7 @@ import json
 url = "http://localhost:8000/predict"
 
 # Define the transformation to match the model's input requirements
-transform = transforms.Compose(
-    [
-        transforms.ToTensor(),  # Convert the PIL Image to Tensor
-        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),  # Normalize the images
-    ]
-)
+
 transform_test = transforms.Compose(
     [
         transforms.ToTensor(),
