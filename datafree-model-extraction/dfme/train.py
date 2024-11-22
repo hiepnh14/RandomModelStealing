@@ -68,7 +68,8 @@ def train(args, teacher1, teacher2, student, generator, device, optimizer, epoch
 
     for i in range(args.epoch_itrs):
         """Repeat epoch_itrs times per epoch"""
-        if i%2 == 0:
+        ran = random.randint(0, 1)
+        if ran == 0:
             teacher = teacher1
         else:
             teacher = teacher2
@@ -346,15 +347,21 @@ def main():
     else:
         teacher = get_classifier(args.model, pretrained=True, num_classes=args.num_classes)
     
-    teacher1 = network.resnet_8x.ResNet34_8x(num_classes=num_classes)
+    
     if args.dataset == 'svhn':
         print("Loading SVHN TEACHER")
         args.ckpt = 'checkpoint/teacher/svhn-resnet34_8x.pt'
+    elif args.dataset == 'cifar10':
+        args.ckpt = 'checkpoint/teacher/cifar10-resnet34_8x.pt'
+    teacher1 = network.resnet_8x.ResNet34_8x(num_classes=num_classes)
     teacher1.load_state_dict( torch.load( args.ckpt, map_location=device) )
     teacher2 = network.resnet_8x.ResNet18_8x(num_classes=num_classes)
     if args.dataset == 'svhn':
         print("Loading SVHN TEACHER")
         args.ckpt = 'checkpoint/teacher/svhn-resnet18_8x.pt'
+    elif args.dataset == 'cifar10':
+        print("Loading Cifar10 TEACHER 2")
+        args.ckpt = 'checkpoint/teacher/cifar10-resnet18_8x.pt'
     teacher2.load_state_dict( torch.load( args.ckpt, map_location=device) )
 
     teacher1.eval()
