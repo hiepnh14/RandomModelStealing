@@ -9,6 +9,12 @@ from torch.utils.data import DataLoader, TensorDataset
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 import torchvision.transforms as transforms
 
+if torch.cuda.is_available():
+    device = torch.device("cuda")
+elif torch.backends.mps.is_available():
+    device = torch.device("mps")
+else:
+    device = torch.device("cpu")
 
 # Step 1: Load input-output pairs from a JSON file
 def load_from_json(file_name):
@@ -80,7 +86,7 @@ class ResNet18Model(nn.Module):
 
 
 # Step 4: Training the ResNet model with early stopping
-def train_resnet_model(X, y, patience=5):
+def train_resnet_model(X, y, patience=5, device=device):
     """
     Train the ResNet model with early stopping.
 
@@ -105,6 +111,7 @@ def train_resnet_model(X, y, patience=5):
 
     # Initialize model, loss function, and optimizer
     model = ResNet18Model(num_classes=10)
+    model.to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-4, weight_decay=1e-5)
     scheduler = ReduceLROnPlateau(
@@ -117,8 +124,10 @@ def train_resnet_model(X, y, patience=5):
         train_loss, correct_train, total_train = 0.0, 0, 0
 
         for inputs, labels in train_loader:
+            inputs, labels = inputs.to(device), labels.to(device)
             optimizer.zero_grad()
             outputs = model(inputs)
+
             loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
@@ -135,10 +144,13 @@ def train_resnet_model(X, y, patience=5):
 
         # Validation step
         val_loss, correct_val, total_val = 0.0, 0, 0
+        model.to(device)
         model.eval()
         with torch.no_grad():
             for inputs, labels in test_loader:
+                inputs, labels = inputs.to(device), labels.to(device)
                 outputs = model(inputs)
+
                 loss = criterion(outputs, labels)
                 val_loss += loss.item()
                 _, predicted = torch.max(outputs, 1)
@@ -152,7 +164,7 @@ def train_resnet_model(X, y, patience=5):
         # Save best model based on validation accuracy
         if val_acc > best_val_acc:
             best_val_acc = val_acc
-            torch.save(model.state_dict(), "best_model.pth")
+            torch.save(model.state_dict(), "best_model_18only.pth")
             print(f"Saved best model with val_acc: {best_val_acc:.2f}%")
 
         # Adjust learning rate

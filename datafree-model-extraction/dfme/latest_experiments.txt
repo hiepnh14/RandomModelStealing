@@ -1,0 +1,12 @@
+save_results/cifar10
+save_results/cifar10
+save_results/svhn
+save_results/svhn
+save_results/svhn
+save_results/svhn
+save_results/svhn
+save_results/svhn
+save_results/svhn
+save_results/svhn
+save_results/svhn
+save_results/svhn

@@ -4,13 +4,13 @@ from pydantic import BaseModel
 import torch
 import torch.nn.functional as F
 import torchvision
-from torchvision import transforms
+from torchvision import transforms, models
 import torch.nn as nn
 import numpy as np
 import random
 import warnings
 from efficientNet import EfficientNetV2, efficientnet_v2_configs
-from resnet import ResNet18, ResNet20
+from resnet import ResNet18, ResNet20, ResNet34
 warnings.filterwarnings("ignore")
 app = FastAPI(title="PyTorch Model Inference API")
 device = "cpu"
@@ -30,11 +30,11 @@ resnet18.eval()  # Set the model to evaluation mode
 
 
 # resnet34 = torchvision.models.resnet34()  # Your model architecture (e.g., ResNet18, VGG16, etc.)
-
-# resnet34.fc = nn.Linear(resnet34.fc.in_features, 10)
-resnet20 = ResNet20()
-resnet20.load_state_dict(torch.load('resnet20.pth'))
-resnet20.eval()  # Set the model to evaluation mode
+# Load best model checkpoint
+resnet34 = models.resnet34(pretrained=True)
+resnet34.fc = nn.Linear(resnet34.fc.in_features, 10)
+resnet34 = load_model(resnet34, "resnet34.pth", device=device)
+resnet34.eval()  # Set the model to evaluation mode
 # Define the transformations for the input data
 
 model_variant = 'efficientnet_v2_s'  # Choose between 'efficientnet_v2_s', 'efficientnet_v2_m', 'efficientnet_v2_l'
@@ -58,7 +58,7 @@ num = random.choice([0, 1])
 if num == 0:
     model = resnet18
 elif num == 1:
-    model = resnet20
+    model = resnet34
 
 # Make predictions on the test dataset as an example
 # with torch.no_grad():
@@ -86,11 +86,12 @@ class Prediction(BaseModel):
 @app.post("/predict", response_model=Prediction)
 def predict(input: InputData):
     try:
-        num = random.choice([0, 1])
-        if num == 0:
-            model = resnet18
-        elif num == 1:
-            model = resnet20
+        # num = random.choice([0, 1])
+        # if num == 0:
+        #     model = resnet18
+        # elif num == 1:
+        #     model = resnet20
+        model = resnet34
         # else:
         # model = efficientv2s
         # Convert input data to a tensor

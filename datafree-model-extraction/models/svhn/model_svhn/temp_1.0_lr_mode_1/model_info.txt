@@ -1,0 +1,20 @@
+{
+  "config_file": null,
+  "target": "svhn",
+  "surrogate": "svhn",
+  "model_type": "wrn-28-10",
+  "gpu_id": 0,
+  "batch_size": 100,
+  "model_id": "0",
+  "seed": 0,
+  "normalize": 1,
+  "device": 0,
+  "epochs": 30,
+  "lr_mode": 1,
+  "opt_type": "SGD",
+  "lr_max": 0.1,
+  "lr_min": 0.0,
+  "temp": 1.0,
+  "path": null,
+  "model_dir": "../models/svhn/model_svhn/temp_1.0_lr_mode_1"
+}
