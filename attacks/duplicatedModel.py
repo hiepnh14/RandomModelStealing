@@ -11,6 +11,7 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 import torchvision.transforms as transforms
 from torch.utils.data import Dataset
 
+
 # Step 1: Load input-output pairs from a JSON file
 def load_from_json(file_name):
     """Load input-output pairs from a JSON file."""
@@ -97,6 +98,7 @@ class ResNet18Model(nn.Module):
 
 from torch.utils.data import Dataset
 
+
 class CIFAR10Dataset(Dataset):
     def __init__(self, io_pairs, transform=None):
         self.data = [pair["input"] for pair in io_pairs]
@@ -114,91 +116,6 @@ class CIFAR10Dataset(Dataset):
         return x, y
 
 
-
-
-# Step 4: Training the ResNet model with early stopping
-# def train_resnet_model(X, y, patience=3):
-#     """
-#     Train the ResNet model with early stopping.
-
-#     Parameters:
-#     - X: Input features.
-#     - y: Target labels.
-#     - patience: Number of epochs to wait for validation improvement before stopping.
-#     """
-
-#     torch.set_num_threads(8)
-#     # Convert numpy arrays to PyTorch tensors
-#     X_train, X_test, y_train, y_test = train_test_split(
-#         X, y, test_size=0.2, random_state=42
-#     )
-#     y_train, y_test = torch.tensor(y_train).long(), torch.tensor(y_test).long()
-
-#     # DataLoader for training and validation
-#     batch_size = 32
-#     train_loader = DataLoader(
-#         TensorDataset(X_train, y_train), batch_size=batch_size, shuffle=True
-#     )
-#     test_loader = DataLoader(
-#         TensorDataset(X_test, y_test), batch_size=batch_size, shuffle=False
-#     )
-
-#     # Initialize model, loss function, and optimizer
-#     model = ResNet18Model(num_classes=10)
-#     criterion = nn.CrossEntropyLoss()
-#     optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-4)
-#     scheduler = ReduceLROnPlateau(
-#         optimizer, mode="min", patience=3, factor=0.1, verbose=True
-#     )
-
-#     best_val_acc = 0.0
-#     for epoch in range(50):
-#         model.train()
-#         train_loss, correct_train, total_train = 0.0, 0, 0
-
-#         for inputs, labels in train_loader:
-#             optimizer.zero_grad()
-#             outputs = model(inputs)
-#             loss = criterion(outputs, labels)
-#             loss.backward()
-#             optimizer.step()
-
-#             train_loss += loss.item()
-#             _, predicted = torch.max(outputs, 1)
-#             total_train += labels.size(0)
-#             correct_train += (predicted == labels).sum().item()
-
-#         train_acc = 100 * correct_train / total_train
-#         print(
-#             f"Epoch {epoch+1}/50, Loss: {train_loss/total_train:.4f}, Train Accuracy: {train_acc:.2f}%"
-#         )
-
-#         # Validation step
-#         val_loss, correct_val, total_val = 0.0, 0, 0
-#         model.eval()
-#         with torch.no_grad():
-#             for inputs, labels in test_loader:
-#                 outputs = model(inputs)
-#                 loss = criterion(outputs, labels)
-#                 val_loss += loss.item()
-#                 _, predicted = torch.max(outputs, 1)
-#                 total_val += labels.size(0)
-#                 correct_val += (predicted == labels).sum().item()
-
-#         val_acc = 100 * correct_val / total_val
-#         val_loss /= total_val
-#         print(f"Validation Accuracy: {val_acc:.2f}%, Validation Loss: {val_loss:.4f}")
-
-#         # Save best model based on validation accuracy
-#         if val_acc > best_val_acc:
-#             best_val_acc = val_acc
-#             torch.save(model.state_dict(), "best_model.pth")
-#             print(f"Saved best model with val_acc: {best_val_acc:.2f}%")
-
-#         # Adjust learning rate
-#         scheduler.step(val_loss)
-#     print(f"Saved best model with val_acc: {best_val_acc:.2f}%")
-#     return model
 def train_resnet_model(X, y, patience=3):
     """
     Train the ResNet model with early stopping and save Validation Accuracy to a CSV file.
@@ -292,6 +209,7 @@ def train_resnet_model(X, y, patience=3):
         scheduler.step(val_loss)
     print(f"Saved best model with val_acc: {best_val_acc:.2f}%")
     return model
+
 
 # Step 5: Main function
 def main():

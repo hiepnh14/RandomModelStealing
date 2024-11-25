@@ -4,48 +4,56 @@ from pydantic import BaseModel
 import torch
 import torch.nn.functional as F
 import torchvision
-from torchvision import transforms, models
+from torchvision import transforms
 import torch.nn as nn
 import numpy as np
 import random
 import warnings
 from efficientNet import EfficientNetV2, efficientnet_v2_configs
-from resnet import ResNet18, ResNet20, ResNet34
+from resnet import ResNet18, ResNet20
+
 warnings.filterwarnings("ignore")
 app = FastAPI(title="PyTorch Model Inference API")
 device = "cpu"
+
+
 # Function to load the best model checkpoint
 def load_model(model, path, device=device):
     model.load_state_dict(torch.load(path, map_location=device))
     model = model.to(device)
     return model
 
+
 # device = "cpu"
 # Load the model at startup
 # resnet18 = torchvision.models.resnet18()  # Your model architecture (e.g., ResNet18, VGG16, etc.)
 # resnet18.fc = nn.Linear(resnet18.fc.in_features, 10)
 resnet18 = ResNet18()
-resnet18.load_state_dict(torch.load('resnet18.pth'))
+# resnet18.load_state_dict(torch.load('resnet18.pth'))
+resnet18.load_state_dict(torch.load("resnet18.pth", map_location=torch.device("cpu")))
+
 resnet18.eval()  # Set the model to evaluation mode
 
 
 # resnet34 = torchvision.models.resnet34()  # Your model architecture (e.g., ResNet18, VGG16, etc.)
-# Load best model checkpoint
-resnet34 = models.resnet34(pretrained=True)
-resnet34.fc = nn.Linear(resnet34.fc.in_features, 10)
-resnet34 = load_model(resnet34, "resnet34.pth", device=device)
-resnet34.eval()  # Set the model to evaluation mode
+
+# resnet34.fc = nn.Linear(resnet34.fc.in_features, 10)
+resnet20 = ResNet20()
+# resnet20.load_state_dict(torch.load('resnet20.pth'))
+resnet20.load_state_dict(torch.load("resnet20.pth", map_location=torch.device("cpu")))
+resnet20.eval()  # Set the model to evaluation mode
 # Define the transformations for the input data
 
-model_variant = 'efficientnet_v2_s'  # Choose between 'efficientnet_v2_s', 'efficientnet_v2_m', 'efficientnet_v2_l'
-efficientv2s = EfficientNetV2(num_classes=10, architecture_config=efficientnet_v2_configs[model_variant]).to(device)
+model_variant = "efficientnet_v2_s"  # Choose between 'efficientnet_v2_s', 'efficientnet_v2_m', 'efficientnet_v2_l'
+efficientv2s = EfficientNetV2(
+    num_classes=10, architecture_config=efficientnet_v2_configs[model_variant]
+).to(device)
 efficientv2s = load_model(efficientv2s, "efficientv2s.pth", device=device)
 
 
-transform = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-])
+transform = transforms.Compose(
+    [transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
+)
 
 # Load the CIFAR-10 test dataset
 test_dataset = torchvision.datasets.CIFAR10(
@@ -54,12 +62,12 @@ test_dataset = torchvision.datasets.CIFAR10(
 
 test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=False)
 
-num = random.choice([0, 1])
-if num == 0:
-    model = resnet18
-elif num == 1:
-    model = resnet34
-
+# num = random.choice([0, 1])
+# if num == 0:
+#     model = resnet18
+# elif num == 1:
+#     model = resnet20
+model = resnet20
 # Make predictions on the test dataset as an example
 # with torch.no_grad():
 #     for data, target in test_loader:
@@ -91,7 +99,7 @@ def predict(input: InputData):
         #     model = resnet18
         # elif num == 1:
         #     model = resnet20
-        model = resnet34
+        model = resnet20
         # else:
         # model = efficientv2s
         # Convert input data to a tensor
@@ -109,7 +117,9 @@ def predict(input: InputData):
             predicted_class = np.argmax(probabilities)
 
         return Prediction(
-            prediction=int(predicted_class), probabilities=probabilities, model=int(num)
+            prediction=int(predicted_class),
+            probabilities=probabilities,
+            model=int(),  # num
         )
 
     except Exception as e:
